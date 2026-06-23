@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Guardian-Nexus | Security Suite</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; text-align: center; }
+        .card { background: #1e293b; padding: 25px; border-radius: 12px; margin: 20px auto; width: 80%; max-width: 700px; border: 1px solid #334155; }
+        textarea { width: 100%; height: 100px; background: #020617; color: #4ade80; border: 1px solid #475569; padding: 10px; border-radius: 5px; }
+        button { padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn-blue { background: #3b82f6; color: white; }
+        .btn-red { background: #ef4444; color: white; }
+        .btn-green { background: #22c55e; color: white; }
+        .bot-area { height: 150px; border: 2px dashed #475569; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <h1>🛡️ Guardian-Nexus Security Suite</h1>
+    
+    <div class="card">
+        <h2>1. Stark-Audit (Code Review)</h2>
+        <form action="/audit" method="POST">
+            <textarea name="code_input" placeholder="Paste code here...">{{ original_code }}</textarea>
+            <br><button type="submit" class="btn-blue">SCAN SOURCE CODE</button>
+        </form>
+        {% if audit_results %}<div style="margin-top:15px; color: #fbbf24;">{% for r in audit_results %}<p>{{ r }}</p>{% endfor %}</div>{% endif %}
+    </div>
+
+    <div class="card">
+        <h2>2. Bot-Slayer (Behavioral Defense)</h2>
+        <div class="bot-area" onmousemove="track(event)">
+            <button class="btn-green" onclick="verify(true)">VERIFY (HUMAN)</button>
+            <button class="btn-red" onclick="verify(false)" style="margin-left:10px;">SIMULATE BOT ATTACK</button>
+        </div>
+        <h2 id="bot-status"></h2>
+        <p id="bot-details" style="color: #94a3b8;"></p>
+    </div>
+
+    <script>
+        let moves = [];
+        function track(e) { moves.push({x: e.clientX, y: e.clientY}); }
+        function verify(isHuman) {
+            fetch('/detect-bot', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({movements: isHuman ? moves : []})
+            })
+            .then(res => res.json()).then(data => {
+                const status = document.getElementById('bot-status');
+                status.innerText = data.status; status.style.color = data.color;
+                document.getElementById('bot-details').innerText = data.details;
+            });
+            moves = []; // Reset
+        }
+    </script>
+</body>
+</html>
